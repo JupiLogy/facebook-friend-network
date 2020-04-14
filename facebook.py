@@ -15,18 +15,18 @@ def get_name(link):
 # TODO: Fill with path to your browser driver (get from https://chromedriver.chromium.org/downloads)
 driver = Chrome("***")
 
-driver.get("www.facebook.com")
+driver.get("https://www.facebook.com")
 input("Press enter here when you have logged in to Facebook.")
 # You need to log into your account to view your mutual friends lists.
 
-driver.get("www.facebook.com/***")  # TODO: Fill with URL of YOUR friends list
+driver.get("https://www.facebook.com/***")  # TODO: Fill with URL of YOUR friends list
 
 # Load page fully...
 old_no_friends = -1
 while len(driver.find_elements_by_class_name("b1v8xokw")) != old_no_friends:
-    old_friends = len(driver.find_elements_by_class_name("b1v8xokw"))
+    old_no_friends = len(driver.find_elements_by_class_name("b1v8xokw"))
     # Using space key to scroll down page, to fully load
-    driver.find_elements_by_class_name("__fb-dark-mode")[0].send_keys("     ")
+    driver.find_elements_by_class_name("_6s5d")[0].send_keys("     ")
     time.sleep(3)
 # Page loaded!
 friends = driver.find_elements_by_class_name("b1v8xokw")
@@ -45,8 +45,6 @@ with open('friend_links', 'wb') as file:
 
 # Part 2: Getting mutual friends lists
 mutuals = {}
-driver.get(next(iter(friend_links.values())))
-input("press enter when you have logged in.")
 
 for friend in friend_links.keys():
     driver.get(friend_links[friend])
@@ -54,9 +52,9 @@ for friend in friend_links.keys():
     # Scroll until friends all load
     old_no_friends = -1
     while len(driver.find_elements_by_class_name("b1v8xokw")) != old_no_friends:
-        old_friends = len(driver.find_elements_by_class_name("b1v8xokw"))
+        old_no_friends = len(driver.find_elements_by_class_name("b1v8xokw"))
         # Scroll using space key
-        driver.find_elements_by_class_name("__fb-dark-mode")[0].send_keys("     ")
+        driver.find_elements_by_class_name("_6s5d")[0].send_keys("     ")
         time.sleep(3)
 
     # Grab friends
