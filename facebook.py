@@ -1,7 +1,7 @@
 from selenium.webdriver import Chrome
 import time
 import pickle
-
+from tqdm import tqdm
 
 # Some utilities:
 def get_name(link):
@@ -32,21 +32,23 @@ while len(driver.find_elements_by_class_name("b1v8xokw")) != old_no_friends:
 friends = driver.find_elements_by_class_name("b1v8xokw")
 
 # Get list of mutual friend links, add it to friend_links dictionary
+print("Getting the list of mutual friends...")
 friend_links = {}
-for friend in friends:
+for friend in tqdm(friends):
     link_to_mutuals = friend.get_attribute("href")
     name = get_name(link_to_mutuals)
     friend_links[name] = link_to_mutuals
 
 # Dumping list of names with links, saving progress in case we lose connection
-with open('friend_links', 'wb') as file:
+with open("friend_links", "wb") as file:
     pickle.dump(friend_links, file)
+print("'friend_links' saved")
 
 
 # Part 2: Getting mutual friends lists
 mutuals = {}
 
-for friend in friend_links.keys():
+for friend in tqdm(friend_links.keys()):
     driver.get(friend_links[friend])
 
     # Scroll until friends all load
@@ -62,9 +64,9 @@ for friend in friend_links.keys():
     mutuals[friend] = [get_name(friend.get_attribute("href")) for friend in raw_mutuals]
 
 # Dumping names with list of mutual friends. We can disconnect from Facebook now.
-with open('mutuals', 'wb') as f:
+with open("mutuals", "wb") as f:
     pickle.dump(mutuals, f)
-
+print("'mutuals' saved")
 
 # Part 3: Getting csv
 
@@ -75,7 +77,7 @@ del mutuals["www.facebook.com"]
 # csv_out will be our csv string we write to file
 csv_out = ""
 
-for friend in mutuals.keys():
+for friend in tqdm(mutuals.keys()):
     # Append friend name, followed by their mutual friends names.
     # As long as their mutual friend is not called "www.facebook.com".
     mutuals[friend].insert(0, friend)
@@ -93,3 +95,4 @@ for friend in mutuals.keys():
 # Finally, write out the csv!
 with open("facebook.csv", "w") as f:
     f.write(csv_out)
+print("Output saved in 'facebook.csv'")
