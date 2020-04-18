@@ -21,7 +21,7 @@ driver.get("https://www.facebook.com")
 input("Press enter here when you have logged in to Facebook.")
 # You need to log into your account to view your mutual friends lists.
 
-driver.get("https://www.facebook.com/{}".format(os.getenv("FRIENDS_LIST")))
+driver.get(os.getenv("FRIENDS_LIST"))
 
 # Load page fully...
 old_no_friends = -1
