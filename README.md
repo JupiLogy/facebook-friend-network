@@ -6,25 +6,32 @@ Please read this entire readme before doing anything.
 ## How to use:
 
 ### Getting data:
-- Check you have all the requirements installed.
-- Go to facebook.py and search for TODO. Those comments will tell you the necessary changes you should make.
-- Run `python facebook.py`.
-- Log in to Facebook in the pop up window, then go back to the terminal and press enter.
+1. Check you have all the requirements installed.
+2. Create a `.env` file with the following content:
+```env
+CHROME_DRIVER_PATH="/home/you/path/to/the/chromedriver"
+FRIENDS_LIST="https://www.facebook.com/yourUsername/friends"
+```
+You can get a Chrome driver on https://chromedriver.chromium.org/downloads and make sure you have a username on Facebook.
+3. Run `python facebook.py`.
+4. Log in to Facebook in the pop up window, then go back to the terminal and press enter.
 
 ### Constructing Graph
-- Once it has finished, open Gephi and click `new project`.
-- Go to `Data Laboratory`, then `edges`. Now, `import spreadsheet`. Select `facebook.csv`.
-- Go to `Overview`. Choose the `Force Atlas` layout and press play.
-- Just kinda play around with Gephi until you get something you like :) you can even colour nodes.
+1. Once it has finished, open Gephi and click `new project`.
+2. Go to `Data Laboratory`, then `edges`. Now, `import spreadsheet`. Select `facebook.csv`.
+3. Go to `Overview`. Choose the `Force Atlas` layout and press play.
+4. Just kinda play around with Gephi until you get something you like :) you can even colour nodes.
 
 ### Saving Graph
-- Go to `preview` to make sure you like how it looks.
-- `File > Export >` whatever filetype you want.
-- Finally you can go to an image editor to draw labels and stuff.
+1. Go to `preview` to make sure you like how it looks.
+2. `File > Export >` whatever filetype you want.
+3. Finally you can go to an image editor to draw labels and stuff.
 
 ## Requirements:
 - Chrome browser
 - Selenium: `pip install Selenium`
+- TQDM: `pip install tqdm`
+- DotEnv: `pip install python-dotenv`
 - Driver according to your Chrome version and OS: https://chromedriver.chromium.org/downloads
 - Gephi, unless you have some other plan for drawing your graph
 
