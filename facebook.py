@@ -2,6 +2,8 @@ from selenium.webdriver import Chrome
 import time
 import pickle
 from tqdm import tqdm
+from dotenv import load_dotenv
+import os
 
 # Some utilities:
 def get_name(link):
@@ -9,17 +11,17 @@ def get_name(link):
     split = str.split(link, sep="/")
     return split[-2]
 
+load_dotenv()
 
 # Part 1: Getting list of your friends
 
-# TODO: Fill with path to your browser driver (get from https://chromedriver.chromium.org/downloads)
-driver = Chrome("***")
+driver = Chrome(os.getenv("CHROME_DRIVER_PATH"))
 
 driver.get("https://www.facebook.com")
 input("Press enter here when you have logged in to Facebook.")
 # You need to log into your account to view your mutual friends lists.
 
-driver.get("https://www.facebook.com/***")  # TODO: Fill with URL of YOUR friends list
+driver.get("https://www.facebook.com/{}".format(os.getenv("FRIENDS_LIST")))
 
 # Load page fully...
 old_no_friends = -1
