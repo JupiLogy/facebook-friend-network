@@ -5,11 +5,35 @@ from tqdm import tqdm
 from dotenv import load_dotenv
 import os
 
+new_fb_vars = ["_6s5d", "b1v8xokw"]
+old_fb_vars = ["_4lh", "_39g5"]
+
 # Some utilities:
-def get_name(link):
+def get_name_and_link(link):
     # Get username from mutual friends link
+    # Also returns mutual friends link as sometimes the link is weird
+    global old_fb
     split = str.split(link, sep="/")
-    return split[-2]
+    if split[-2] == "www.facebook.com":
+        # Corresponding to when user doesn't have a fb username.
+        # We get their user ID instead, which is a number.
+        name = str.split(split[-1], sep="=")[-2][:-3]
+    elif split[-2] == "mutual_friends":
+        # This means the link leads to a differently formatted mutual friends list.
+        # We need to regenerate the friends list link from the user ID.
+        name = str.split(split[-1], sep="=")[-1]
+        link = "https://www.facebook.com/profile.php?id=" + name + "&sk=friends_mutual"
+        return [name, link] # We return the link directly
+        # because we manually generated it, we know it's ok, no more to do with it.
+    else:
+        # This means the username is fine.
+        name = split[-2]
+    
+    if old_fb:
+        # Old fb gives link to full friends list, not just mutuals
+        return [name, link + "_mutual"]
+    else:
+        return [name, link]
 
 load_dotenv()
 
@@ -23,23 +47,31 @@ input("Press enter here when you have logged in to Facebook.")
 
 driver.get(os.getenv("FRIENDS_LIST"))
 
+try:
+    driver.find_element_by_class_name(new_fb_vars[0])[0]
+    class_vars = new_fb_vars
+    old_fb = False
+except:
+    class_vars = old_fb_vars
+    old_fb = True
+
 # Load page fully...
 old_no_friends = -1
-while len(driver.find_elements_by_class_name("b1v8xokw")) != old_no_friends:
-    old_no_friends = len(driver.find_elements_by_class_name("b1v8xokw"))
+while len(driver.find_elements_by_class_name(class_vars[1])) != old_no_friends:
+    old_no_friends = len(driver.find_elements_by_class_name(class_vars[1]))
     # Using space key to scroll down page, to fully load
-    driver.find_elements_by_class_name("_6s5d")[0].send_keys("     ")
+    driver.find_elements_by_class_name(class_vars[0])[0].send_keys("     ")
     time.sleep(3)
 # Page loaded!
-friends = driver.find_elements_by_class_name("b1v8xokw")
+friends = driver.find_elements_by_class_name(class_vars[1])
 
 # Get list of mutual friend links, add it to friend_links dictionary
 print("Getting the list of mutual friends...")
 friend_links = {}
 for friend in tqdm(friends):
     link_to_mutuals = friend.get_attribute("href")
-    name = get_name(link_to_mutuals)
-    friend_links[name] = link_to_mutuals
+    name, link = get_name_and_link(link_to_mutuals)
+    friend_links[name] = link
 
 # Dumping list of names with links, saving progress in case we lose connection
 with open("friend_links", "wb") as file:
@@ -55,15 +87,15 @@ for friend in tqdm(friend_links.keys()):
 
     # Scroll until friends all load
     old_no_friends = -1
-    while len(driver.find_elements_by_class_name("b1v8xokw")) != old_no_friends:
-        old_no_friends = len(driver.find_elements_by_class_name("b1v8xokw"))
+    while len(driver.find_elements_by_class_name(class_vars[1])) != old_no_friends:
+        old_no_friends = len(driver.find_elements_by_class_name(class_vars[1]))
         # Scroll using space key
-        driver.find_elements_by_class_name("_6s5d")[0].send_keys("     ")
+        driver.find_elements_by_class_name(class_vars[0])[0].send_keys("     ")
         time.sleep(3)
 
     # Grab friends
-    raw_mutuals = driver.find_elements_by_class_name("b1v8xokw")
-    mutuals[friend] = [get_name(friend.get_attribute("href")) for friend in raw_mutuals]
+    raw_mutuals = driver.find_elements_by_class_name(class_vars[1])
+    mutuals[friend] = [get_name_and_link(friend.get_attribute("href"))[0] for friend in raw_mutuals]
 
 # Dumping names with list of mutual friends. We can disconnect from Facebook now.
 with open("mutuals", "wb") as f:
@@ -71,10 +103,6 @@ with open("mutuals", "wb") as f:
 print("'mutuals' saved")
 
 # Part 3: Getting csv
-
-# Anyone without a facebook username will be listed as "www.facebook.com"
-# So we need to delete those entries
-del mutuals["www.facebook.com"]
 
 # csv_out will be our csv string we write to file
 csv_out = ""
